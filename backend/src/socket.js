@@ -43,8 +43,18 @@ function emitNotification(notification) {
   }
   
   try {
+    // Emit to all users
     io.emit('notification', notification);
-    console.log('Notification emitted:', notification);
+    console.log('Notification emitted to all users:', notification);
+
+    // If notification has a specific userId, also emit to that user
+    if (notification.userId) {
+      const socketId = connectedUsers.get(notification.userId.toString());
+      if (socketId) {
+        io.to(socketId).emit('notification', notification);
+        console.log('Notification also sent to specific user:', notification.userId);
+      }
+    }
   } catch (error) {
     console.error('Error emitting notification:', error);
   }
@@ -58,12 +68,14 @@ function sendNotification(userId, notification) {
   }
 
   try {
-    const socketId = connectedUsers.get(userId);
+    const socketId = connectedUsers.get(userId.toString());
     if (socketId) {
       io.to(socketId).emit('notification', notification);
       console.log('Notification sent to user:', userId);
     } else {
       console.log('User not connected:', userId);
+      // Store notification in database for later delivery
+      storeNotification(userId, notification);
     }
   } catch (error) {
     console.error('Error sending notification:', error);

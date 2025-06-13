@@ -384,8 +384,9 @@ router.patch('/:id', auth, async (req, res) => {
         timestamp: new Date()
       };
 
+      // Emit notification to all users and specifically to the request owner
       emitNotification(statusNotification);
-      console.log('Sent status notification to user:', statusNotification);
+      console.log('Sent status notification:', statusNotification);
     }
 
     // If department is being assigned, send notification
@@ -404,8 +405,9 @@ router.patch('/:id', auth, async (req, res) => {
         timestamp: new Date()
       };
 
+      // Emit notification to all users and specifically to the request owner
       emitNotification(deptNotification);
-      console.log('Sent department notification to user:', deptNotification);
+      console.log('Sent department notification:', deptNotification);
     }
 
     await request.save();

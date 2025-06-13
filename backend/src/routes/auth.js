@@ -36,36 +36,39 @@ router.get('/me', auth, async (req, res) => {
 router.post('/register', async (req, res) => {
   try {
     const { name, email, password, phone, kvkkConsent } = req.body;
+    console.log('Register attempt for email:', email);
 
     // Check if user already exists
     let user = await User.findOne({ email });
     if (user) {
+      console.log('User already exists:', email);
       return res.status(400).json({ message: 'User already exists' });
     }
 
     // Validate KVKK consent
     if (!kvkkConsent) {
+      console.log('KVKK consent missing for:', email);
       return res.status(400).json({ message: 'KVKK consent is required' });
     }
 
+    console.log('Creating new user for:', email);
     // Create new user
     user = new User({
       name,
       email,
-      password,
+      password, // Password will be hashed by the User model middleware
       phone,
       kvkkConsent,
-      role: 'citizen' // Default role
+      role: 'citizen',
+      isVerified: true
     });
 
-    // Hash password
-    const salt = await bcrypt.genSalt(10);
-    user.password = await bcrypt.hash(password, salt);
-
     await user.save();
+    console.log('User saved successfully:', email);
 
     // Generate token
     const token = generateAuthToken(user);
+    console.log('Token generated for:', email);
 
     res.status(201).json({
       token,
@@ -75,7 +78,8 @@ router.post('/register', async (req, res) => {
         email: user.email,
         role: user.role,
         phone: user.phone,
-        kvkkConsent: user.kvkkConsent
+        kvkkConsent: user.kvkkConsent,
+        isVerified: user.isVerified
       }
     });
   } catch (error) {
@@ -88,21 +92,36 @@ router.post('/register', async (req, res) => {
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
+    console.log('Login attempt for email:', email);
 
     // Check if user exists
     const user = await User.findOne({ email });
     if (!user) {
+      console.log('User not found for email:', email);
       return res.status(400).json({ message: 'Invalid credentials' });
     }
+    console.log('User found:', { 
+      id: user._id, 
+      email: user.email, 
+      isVerified: user.isVerified,
+      hasPassword: !!user.password,
+      passwordLength: user.password ? user.password.length : 0
+    });
 
     // Validate password
+    console.log('Comparing passwords...');
+    console.log('Input password length:', password.length);
     const isMatch = await bcrypt.compare(password, user.password);
+    console.log('Password comparison result:', isMatch);
+    
     if (!isMatch) {
+      console.log('Password does not match for user:', email);
       return res.status(400).json({ message: 'Invalid credentials' });
     }
 
     // Generate token
     const token = generateAuthToken(user);
+    console.log('Generated token for user:', email);
 
     res.json({
       token,
@@ -111,11 +130,15 @@ router.post('/login', async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
-        phone: user.phone
+        phone: user.phone,
+        isVerified: user.isVerified
       }
     });
   } catch (error) {
-    console.error('Login error:', error);
+    console.error('Login error details:', {
+      message: error.message,
+      stack: error.stack
+    });
     res.status(500).json({ message: 'Server error during login' });
   }
 });

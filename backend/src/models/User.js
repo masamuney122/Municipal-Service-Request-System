@@ -58,17 +58,23 @@ userSchema.pre('save', async function(next) {
   if (!this.isModified('password')) return next();
   
   try {
+    console.log('Hashing password for user:', this.email);
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
+    console.log('Password hashed successfully');
     next();
   } catch (error) {
+    console.error('Password hashing error:', error);
     next(error);
   }
 });
 
 // Method to compare password
 userSchema.methods.comparePassword = async function(candidatePassword) {
-  return bcrypt.compare(candidatePassword, this.password);
+  console.log('Comparing password for user:', this.email);
+  const isMatch = await bcrypt.compare(candidatePassword, this.password);
+  console.log('Password comparison result:', isMatch);
+  return isMatch;
 };
 
 // Method to get public profile

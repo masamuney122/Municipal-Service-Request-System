@@ -40,6 +40,7 @@ import {
 import { useAuth } from '../contexts/AuthContext';
 import { useSocket } from '../contexts/SocketContext';
 import { motion } from 'framer-motion';
+import { Notification } from '../types/notification';
 
 const drawerWidth = 330;
 const collapsedDrawerWidth = 80;
@@ -56,7 +57,7 @@ const Layout: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const unreadNotifications = notifications.filter(n => !n.read).length;
+  const unreadNotifications = notifications.filter((n: Notification) => !n.read).length;
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -429,7 +430,7 @@ const Layout: React.FC = () => {
               <ListItemText primary="No notifications" />
             </ListItem>
           ) : (
-            notifications.map((notification, index) => (
+            notifications.map((notification: Notification, index: number) => (
               <React.Fragment key={index}>
                 <ListItem
                   button

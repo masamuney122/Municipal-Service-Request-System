@@ -37,6 +37,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setError(null);
       
       const normalizedEmail = decodeURIComponent(email);
+      console.log('Attempting login with email:', normalizedEmail);
       
       const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/auth/login`, {
         method: 'POST',
@@ -47,6 +48,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
 
       const data = await response.json();
+      console.log('Login response:', data);
 
       if (!response.ok) {
         throw new Error(data.message || 'Failed to login');
@@ -56,11 +58,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         ...data.user,
         email: normalizedEmail
       };
+      console.log('Setting user data:', userData);
 
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify(userData));
       setUser(userData);
     } catch (err: any) {
+      console.error('Login error:', err);
       setError(err.message || 'Failed to login');
       throw err;
     } finally {

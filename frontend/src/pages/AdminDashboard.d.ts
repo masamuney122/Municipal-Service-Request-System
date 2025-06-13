@@ -1,4 +1,4 @@
-declare module './pages/AdminDashboard' {
-  const AdminDashboard: React.FC;
-  export default AdminDashboard;
-} 
+import { FC } from 'react';
+
+declare const AdminDashboard: FC;
+export default AdminDashboard; 

@@ -60,30 +60,13 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       transports: ['websocket'],
       reconnection: true,
       reconnectionAttempts: 5,
-      reconnectionDelay: 1000
+      reconnectionDelay: 1000,
+      forceNew: true
     });
 
-    return newSocket;
-  }, [user]);
-
-  // Handle socket connection and events
-  useEffect(() => {
-    const newSocket = createSocketConnection();
-    
-    if (!newSocket) return;
-
-    socketRef.current = newSocket;
-
-    // Connection events
     newSocket.on('connect', () => {
       console.log('Socket connected successfully');
       setConnected(true);
-      setSocket(newSocket);
-
-      // Emit role change event if user exists
-      if (user?.role && socketRef.current) {
-        socketRef.current.emit('role-change', user.role);
-      }
     });
 
     newSocket.on('disconnect', () => {
@@ -96,51 +79,63 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       setConnected(false);
     });
 
-    // Handle notifications
-    newSocket.on('notification', (notification: Notification) => {
-      console.log('Received notification:', notification);
-      
-      setNotifications(prev => {
-        // Check if notification already exists
-        const exists = prev.some(n => 
-          n.type === notification.type && 
-          n.requestId === notification.requestId &&
-          n.timestamp === notification.timestamp
-        );
+    return newSocket;
+  }, [user]);
 
-        if (exists) {
-          console.log('Duplicate notification, skipping');
-          return prev;
+  useEffect(() => {
+    if (user?._id) {
+      const newSocket = createSocketConnection();
+      if (newSocket) {
+        socketRef.current = newSocket;
+        setSocket(newSocket);
+
+        // Listen for notifications
+        newSocket.on('notification', (notification: Notification) => {
+          console.log('Received notification:', notification);
+          
+          setNotifications(prev => {
+            // Check if notification already exists
+            const exists = prev.some(n => 
+              n.type === notification.type && 
+              n.requestId === notification.requestId &&
+              new Date(n.timestamp).getTime() === new Date(notification.timestamp).getTime()
+            );
+
+            if (exists) {
+              console.log('Duplicate notification, skipping');
+              return prev;
+            }
+
+            const newNotification = {
+              ...notification,
+              read: false,
+              timestamp: new Date(notification.timestamp)
+            };
+
+            // Show browser notification
+            if (Notification.permission === 'granted') {
+              try {
+                new Notification(notification.title, {
+                  body: notification.message,
+                  icon: '/logo192.png',
+                  tag: `${notification.type}-${notification.requestId}` // Prevent duplicate notifications
+                });
+              } catch (error) {
+                console.error('Error showing browser notification:', error);
+              }
+            }
+
+            return [newNotification, ...prev];
+          });
+        });
+
+        // Request notification permission
+        if (Notification.permission === 'default') {
+          Notification.requestPermission().then(permission => {
+            console.log('Notification permission:', permission);
+          });
         }
-
-        const newNotification = {
-          ...notification,
-          read: false,
-          timestamp: new Date(notification.timestamp)
-        };
-
-        // Show browser notification
-        if (Notification.permission === 'granted') {
-          try {
-            new Notification(notification.title, {
-              body: notification.message,
-              icon: '/logo192.png',
-              tag: `${notification.type}-${notification.requestId}` // Prevent duplicate notifications
-            });
-          } catch (error) {
-            console.error('Error showing browser notification:', error);
-          }
-        }
-
-        return [newNotification, ...prev];
-      });
-    });
-
-    // Request notification permission
-    if (Notification.permission === 'default') {
-      Notification.requestPermission().then(permission => {
-        console.log('Notification permission:', permission);
-      });
+      }
     }
 
     // Cleanup function

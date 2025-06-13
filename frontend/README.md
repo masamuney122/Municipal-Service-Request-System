@@ -1,46 +1,83 @@
-# Getting Started with Create React App
+# Municipal Service Request System
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A comprehensive platform that enables citizens to report and track local municipal issues, improving transparency and government responsiveness.
 
-## Available Scripts
+## Features
 
-In the project directory, you can run:
+- Citizen Registration and Request Submission
+- Request Tracking and Status Updates
+- Geolocation and Mapping Integration
+- Notification and Alert System
+- Administrative Dashboard and Reporting
 
-### `npm start`
+## Tech Stack
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+- Frontend: React.js with TypeScript
+- Backend: Node.js with Express
+- Database: MongoDB
+- Maps Integration: Google Maps API
+- Real-time Updates: Socket.io
+- File Storage: Local File System
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+## Prerequisites
 
-### `npm test`
+- Node.js (v14 or higher)
+- MongoDB
+- npm or yarn
+- Google Maps API key
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Setup Instructions
 
-### `npm run build`
+1. Clone the repository
+2. Install dependencies:
+   ```bash
+   # Install backend dependencies
+   cd backend
+   npm install
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+   # Install frontend dependencies
+   cd ../frontend
+   npm install
+   ```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+3. Create a `.env` file in the backend directory with the following variables:
+   ```
+   MONGODB_URI=your_mongodb_uri
+   JWT_SECRET=your_jwt_secret
+   GOOGLE_MAPS_API_KEY=your_google_maps_api_key
+   EMAIL_USER=your_email_address
+   EMAIL_PASS=your_email_password
+   ```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+4. Start the development servers:
+   ```bash
+   # Start backend server
+   cd backend
+   npm start
 
-### `npm run eject`
+   # Start frontend server
+   cd ../frontend
+   npm start
+   ```
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+## Project Structure
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+```
+municipal-service-system/
+├── frontend/               # React frontend application
+├── backend/               # Node.js backend server
+├── docs/                  # Documentation
+└── README.md             # Project documentation
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+## API Documentation
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+API documentation is available at `/api-docs` when running the backend server.
 
-## Learn More
+## Contributing
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+Please read CONTRIBUTING.md for details on our code of conduct and the process for submitting pull requests.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
